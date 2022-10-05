@@ -13,7 +13,13 @@ class UserController extends Controller
     public function getdata()
     {
         $user = User::all();
-        return $user;
+        // return $user;
+        return response()->json([
+            'data'=>$user,
+            'status' => true,
+            'message' => "data have been shown!",
+
+        ], 200);
     }
 
     public function delete($id)
@@ -26,14 +32,14 @@ class UserController extends Controller
         else{
             return "Data hasnot  been deleted ";
         }
-        
+
     }
 
     public function update(Request $req)
     {
-        
+
         $user = User::find($req->id);
-  
+
         $user->name = $req->name;
         $user->email = $req->email;
         $user->password = $req->password;
@@ -46,14 +52,14 @@ class UserController extends Controller
             return "data does not Successfully";
         }
     }
- 
+
         public function test(Request $request){
         $rules  = array(
             "name"=>'required'
         );
-        
+
         $validator = Validator::make($request->all(),$rules);
-        
+
         if($validator->fails()){
             return $validator->errors();
         }
@@ -79,18 +85,17 @@ class UserController extends Controller
 
         }
 
-
     public function search($searchkeyword){
         $user = User::where('name','like',"%".$searchkeyword."%")->get();
         return $user;
     }
- 
+
     public function getdatawithid($id)
     {
         $user = User::find($id);
         return $user;
-    }  
-    
+    }
+
     public function signup(Request $request)
     {
 
@@ -100,29 +105,30 @@ class UserController extends Controller
         $user->password = Hash::make( $request->password);
         $user->save();
         return response()->json([
+
+            'id'=>$user->id,
             'status' => true,
             'message' => "User created successfully!",
         ], 200);
     }
 
     public function signin(Request $request){
-
         $user = User::where('email',$request->email)->first();
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response([
                 'message' => ['These credentials do not match our records.']
             ], 404);
         }
-    
+
          $token = $user->createToken('my-app-token')->plainTextToken;
-    
+
         $response = [
             'user' => $user,
             'token' => $token
         ];
-    
+
          return response($response, 201);
              }
-        
+
  }
 
